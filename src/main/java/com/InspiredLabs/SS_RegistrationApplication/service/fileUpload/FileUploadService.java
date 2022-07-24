@@ -6,7 +6,7 @@ import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.Upload;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
+import java.io.*;
 import java.util.logging.Logger;
 
 import static com.InspiredLabs.SS_RegistrationApplication.utils.Constant.BUCKET_NAME;
@@ -17,25 +17,28 @@ public class FileUploadService {
     private final TransferManager transferManager;
 
 
-
-    public FileUploadService( TransferManager transferManager){
+    public FileUploadService(TransferManager transferManager) {
         this.transferManager = transferManager;
     }
 
     public void upload(String fileName) {
 
-        File file = new File(this.getClass().getResource("/" + fileName).getFile());
-        LOGGER.info("This is is the uploaded files path " + file.getAbsolutePath());
+        File file = new File(fileName);
+        LOGGER.info(" ******** This is is the uploaded files path " + file.getAbsolutePath());
+        if (file.exists()) {
+            try {
+                Upload upload = transferManager.upload(BUCKET_NAME, fileName, file);
+                upload.waitForCompletion();
+                LOGGER.info("File upload very successful......");
+            } catch (AmazonClientException e) {
+                LOGGER.info("File upload unsuccessful.......");
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
 
-        try {
-            Upload upload = transferManager.upload(BUCKET_NAME, fileName, file);
-            upload.waitForCompletion();
-            LOGGER.info("File upload very successful......");
-        } catch (AmazonClientException e) {
-            LOGGER.info("File upload unsuccessful.......");
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        } else {
+            LOGGER.warning("!!!! File Not Found " + file.getAbsolutePath() + " !!!!!!");
         }
     }
 

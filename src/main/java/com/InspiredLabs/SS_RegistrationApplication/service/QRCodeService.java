@@ -7,6 +7,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Map;
@@ -19,35 +20,36 @@ import static com.InspiredLabs.SS_RegistrationApplication.utils.Constant.VERIFIC
 @Service
 public class QRCodeService {
 
-   private static final Logger LOGGER = Logger.getLogger(QRCodeService.class.getName());
-
+    private static final Logger LOGGER = Logger.getLogger(QRCodeService.class.getName());
 
 
     public void generateQRCode(Map<String, String> verificationDetails) throws IOException {
 
-            LOGGER.info("VerificationCode: " + verificationDetails.get(VERIFICATION_CODE));
-            LOGGER.info("Image name : " + verificationDetails.get(IMAGE_NAME));
+        LOGGER.info("VerificationCode: " + verificationDetails.get(VERIFICATION_CODE));
+        LOGGER.info("Image name : " + verificationDetails.get(IMAGE_NAME));
 
+        QrCode.Ecc errCorLvl = QrCode.Ecc.LOW;  // Error correction level
 
-            QrCode.Ecc errCorLvl = QrCode.Ecc.LOW;  // Error correction level
+        QrCode qr = QrCode.encodeText(verificationDetails.get(VERIFICATION_CODE), errCorLvl);  // Make the QR Code symbol
 
-            QrCode qr = QrCode.encodeText(verificationDetails.get(VERIFICATION_CODE), errCorLvl);  // Make the QR Code symbol
+        BufferedImage img = toImage(qr, 10, 4);          // Convert to bitmap image
+        String fileName = verificationDetails.get(IMAGE_NAME);
+        LOGGER.info("*******QRCODE file name is: " + fileName);
 
-            BufferedImage img = toImage(qr, 10, 4);          // Convert to bitmap image
+        File imgFile = new File(fileName);
+        LOGGER.info("File location ==================    " + imgFile.getAbsolutePath());
 
-            String image_name = this.getClass().getResource("/").getFile()+verificationDetails.get(IMAGE_NAME);// File path for output
-            File imgFile = new File(image_name);
-            LOGGER.info("File location ==================    "+ imgFile.getAbsolutePath());
-            ImageIO.write(img, "png", imgFile);              // Write image to file
+        ImageIO.write(img, "png", imgFile);              // Write image to file
 
-            String svg = toSvgString(qr, 4, "#FFFFFF", "#000000");  // Convert to SVG XML code
-            File svgFile = new File("hello-world-QR.svg");          // File path for output
-            Files.write(svgFile.toPath(),                           // Write image to file
-                    svg.getBytes(StandardCharsets.UTF_8));
+        String svg = toSvgString(qr, 4, "#FFFFFF", "#000000");  // Convert to SVG XML code
+        File svgFile = new File("hello-world-QR.svg");          // File path for output
 
+        Files.write(svgFile.toPath(),                           // Write image to file
+                svg.getBytes(StandardCharsets.UTF_8));
 
 
     }
+
     private static BufferedImage toImage(QrCode qr, int scale, int border, int lightColor, int darkColor) {
         Objects.requireNonNull(qr);
         if (scale <= 0 || border < 0)

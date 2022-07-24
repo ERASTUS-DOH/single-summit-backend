@@ -21,7 +21,7 @@ import static com.InspiredLabs.SS_RegistrationApplication.utils.Constant.VERIFIC
 
 @Service
 public class RegistrationService {
-private static final Logger LOGGER = Logger.getLogger(RegistrationService.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(RegistrationService.class.getName());
 
     private final QRCodeService qrCodeService;
 
@@ -32,7 +32,7 @@ private static final Logger LOGGER = Logger.getLogger(RegistrationService.class.
     private final FileUploadService fileUploadService;
 
     @Autowired
-    public RegistrationService(QRCodeService qrCodeService, ParticipantRepository participantRepository, EmailService emailService, FileUploadService fileUploadService){
+    public RegistrationService(QRCodeService qrCodeService, ParticipantRepository participantRepository, EmailService emailService, FileUploadService fileUploadService) {
         this.qrCodeService = qrCodeService;
         this.participantRepository = participantRepository;
         this.emailService = emailService;
@@ -59,16 +59,16 @@ private static final Logger LOGGER = Logger.getLogger(RegistrationService.class.
         //verify if user already exist with the same mail:
 
         Optional<Participant> optionalParticipant = this.participantRepository.getParticipantByEmail(participant.email);
-        if(optionalParticipant.isPresent()){
-            throw new InvalidUserException("User with email "+ participant.email + " already exist");
+        if (optionalParticipant.isPresent()) {
+            throw new InvalidUserException("User with email " + participant.email + " already exist");
         }
 
 
-        try{
+        try {
             LOGGER.info("QR-Code generation started..........");
             qrCodeService.generateQRCode(codes);
             LOGGER.info("QR-Code generated successfully");
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -97,19 +97,18 @@ private static final Logger LOGGER = Logger.getLogger(RegistrationService.class.
         participant.setVerificationStatus(true);
 
         Optional<Participant> optionalParticipant = this.participantRepository.getParticipantByEmail(participant.email);
-        if(optionalParticipant.isPresent()){
-            throw new InvalidUserException("User with email "+ participant.email + " already exist");
+        if (optionalParticipant.isPresent()) {
+            throw new InvalidUserException("User with email " + participant.email + " already exist");
         }
 
         this.participantRepository.save(participant);
     }
 
 
-
-    public static Map<String,String> getImageAndVerificationCode(){
+    public static Map<String, String> getImageAndVerificationCode() {
         String randomCode = Constant.uniqueCodeGenerator();
         String imageCode = randomCode.split("-")[0];
-        String imageName = "QR-image-"+imageCode+".png";
+        String imageName = "QR-image-" + imageCode + ".png";
 
         String verificationCode = randomCode.replace("-", "");
 

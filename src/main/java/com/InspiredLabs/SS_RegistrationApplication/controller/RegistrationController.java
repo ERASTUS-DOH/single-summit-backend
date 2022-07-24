@@ -29,7 +29,6 @@ public class RegistrationController {
         return new ResponseEntity<>("Registration Successful",HttpStatus.OK);
     }
 
-
     @PostMapping("/register/inHouse")
     public ResponseEntity<String> participantInHouseRegistration(@RequestBody @Valid InHouseRegistrationDetails registrationDetails) throws InvalidUserException {
         registrationService.inHouseRegistration(registrationDetails);
